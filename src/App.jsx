@@ -11,31 +11,26 @@ export default function App() {
       id: Date.now(),
       type: type,
       text: type === 'button' ? 'Click me' : type === 'text' ? 'Sample text' : 'Container',
-      backgroundColor: type === 'div' ? '#e0e0e0' : '#ffffff',
+      backgroundColor: type === 'div' ? '#e0e0e0' : type === 'button' ? '#6c5ce7' : 'transparent',
+      textColor: type === 'div' || type === 'text' ? '#333333' : '#ffffff',
       x: 50,
       y: 50,
-      width: type === 'div' ? 200 : 'auto',
-      height: type === 'div' ? 100 : 'auto',
+      width: type === 'div' ? '200' : 'auto',
+      height: type === 'div' ? '100' : 'auto',
+      borderRadius: '4',
+      fontSize: '14'
     }
     setElements([...elements, newElement])
     setSelectedId(newElement.id)
   }
 
-  // Handle text property change
-  const handleTextChange = (id, newText) => {
+  // Handle generic property changes
+  const handlePropertyChange = (id, property, value) => {
     setElements(elements.map(el =>
-      el.id === id ? { ...el, text: newText } : el
+      el.id === id ? { ...el, [property]: value } : el
     ))
   }
 
-  // Handle color property change
-  const handleColorChange = (id, newColor) => {
-    setElements(elements.map(el =>
-      el.id === id ? { ...el, backgroundColor: newColor } : el
-    ))
-  }
-
-  // Delete selected element
   const handleDeleteElement = (id) => {
     setElements(elements.filter(el => el.id !== id))
     setSelectedId(null)
@@ -63,9 +58,9 @@ export default function App() {
     let newX = e.clientX - canvasRect.left - dragOffset.x
     let newY = e.clientY - canvasRect.top - dragOffset.y
 
-    // Keep elements within canvas bounds
-    newX = Math.max(0, Math.min(newX, canvasRect.width - 100))
-    newY = Math.max(0, Math.min(newY, canvasRect.height - 50))
+    // Keep elements roughly within canvas bounds
+    newX = Math.max(0, Math.min(newX, canvasRect.width - 20))
+    newY = Math.max(0, Math.min(newY, canvasRect.height - 20))
 
     setElements(elements.map(el =>
       el.id === draggingId ? { ...el, x: newX, y: newY } : el
@@ -81,149 +76,199 @@ export default function App() {
 
   // Generate code for selected element
   const generateElementCode = (element) => {
-    let code = ''
+    const commonStyles = `
+  x: '${element.x}px',
+  y: '${element.y}px',
+  backgroundColor: '${element.backgroundColor}',
+  color: '${element.textColor}',
+  width: '${element.width === 'auto' ? 'auto' : element.width + 'px'}',
+  height: '${element.height === 'auto' ? 'auto' : element.height + 'px'}',
+  borderRadius: '${element.borderRadius}px',
+  fontSize: '${element.fontSize}px',
+`
     
     if (element.type === 'button') {
-      code = `<button style={{\n  padding: '8px 16px',\n  backgroundColor: 'green',\n  color: 'white',\n  border: 'none',\n  borderRadius: '4px',\n  cursor: 'pointer'\n}}\n>\n  ${element.text}\n</button>`
+      return `<button style={{\n${commonStyles}  padding: '8px 16px',\n  border: 'none',\n  cursor: 'pointer'\n}}>\n  ${element.text}\n</button>`
     } else if (element.type === 'text') {
-      code = `<span style={{\n  color: '#333',\n  fontSize: '14px',\n  backgroundColor: '${element.backgroundColor}'\n}}\n>\n  ${element.text}\n</span>`
+      return `<span style={{\n${commonStyles}}}>\n  ${element.text}\n</span>`
     } else if (element.type === 'div') {
-      code = `<div style={{\n width: '200px',\n  height: '100px',\n  backgroundColor: '${element.backgroundColor}',\n  display: 'flex',\n  alignItems: 'center',\n  justifyContent: 'center',\n  border: '2px dashed #999'\n}}\n>\n  ${element.text}\n</div>`
+      return `<div style={{\n${commonStyles}  display: 'flex',\n  alignItems: 'center',\n  justifyContent: 'center'\n}}>\n  ${element.text}\n</div>`
     }
-    
-    return code
+    return ''
   }
 
   return (
-    <div style={styles.appContainer} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+    <div className="app-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
       {/* Toolbar */}
-      <div style={styles.toolbar}>
-        <h1 style={styles.title}>Drag & Drop UI Builder</h1>
-        <div style={styles.buttonGroup}>
-          <button style={styles.toolbarButton} onClick={() => handleAddElement('button')}>
-            + Add Button
+      <div className="toolbar">
+        <h1 className="toolbar-title">UI Builder Pro</h1>
+        <div className="button-group">
+          <button className="toolbar-button" onClick={() => handleAddElement('button')}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
+            Button
           </button>
-          <button style={styles.toolbarButton} onClick={() => handleAddElement('text')}>
-            + Add Text
+          <button className="toolbar-button" onClick={() => handleAddElement('text')}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+            Text
           </button>
-          <button style={styles.toolbarButton} onClick={() => handleAddElement('div')}>
-            + Add Container
+          <button className="toolbar-button" onClick={() => handleAddElement('div')}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            Container
           </button>
         </div>
       </div>
 
-      <div style={styles.mainContent}>
+      <div className="main-content">
         {/* Canvas */}
-        <div
-          id="canvas"
-          style={styles.canvas}
-          onClick={() => setSelectedId(null)}
-        >
-          {elements.length === 0 && (
-            <p style={styles.emptyText}>Click a button above to add elements</p>
-          )}
+        <div className="canvas-wrapper">
+          <div
+            id="canvas"
+            className={`canvas ${elements.length === 0 ? 'empty' : ''}`}
+            onClick={() => setSelectedId(null)}
+          >
+            {elements.length === 0 && (
+              <p className="empty-text">Select an element from top to start designing</p>
+            )}
 
-          {elements.map(element => (
-            <div
-              key={element.id}
-              style={{
-                ...styles.element,
-                position: 'absolute',
-                left: `${element.x}px`,
-                top: `${element.y}px`,
-                backgroundColor: element.backgroundColor,
-                width: element.width !== 'auto' ? `${element.width}px` : 'auto',
-                height: element.height !== 'auto' ? `${element.height}px` : 'auto',
-                border: selectedId === element.id ? '2px solid #2196F3' : '2px solid #999',
-                cursor: 'move',
-                ...(element.type === 'button' && styles.buttonElement),
-                ...(element.type === 'text' && styles.textElement),
-                ...(element.type === 'div' && styles.divElement),
-              }}
-              onMouseDown={(e) => handleMouseDown(e, element.id)}
-              onClick={(e) => {
-                e.stopPropagation()
-                setSelectedId(element.id)
-              }}
-            >
-              {element.type === 'button' && (
-                <button
-                  style={styles.buttonContent}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                  }}
-                  disabled
-                >
-                  {element.text}
-                </button>
-              )}
-              {element.type === 'text' && (
-                <span style={styles.textContent}>{element.text}</span>
-              )}
-              {element.type === 'div' && (
-                <div style={styles.divContent}>{element.text}</div>
-              )}
-            </div>
-          ))}
+            {elements.map(element => (
+              <div
+                key={element.id}
+                className={`canvas-element ${selectedId === element.id ? 'selected' : ''}`}
+                style={{
+                  left: `${element.x}px`,
+                  top: `${element.y}px`,
+                  backgroundColor: element.backgroundColor,
+                  color: element.textColor,
+                  width: element.width !== 'auto' ? `${element.width}px` : 'auto',
+                  height: element.height !== 'auto' ? `${element.height}px` : 'auto',
+                  borderRadius: `${element.borderRadius}px`,
+                  fontSize: `${element.fontSize}px`,
+                  padding: element.type === 'button' ? '8px 16px' : element.type === 'text' ? '4px 8px' : '0',
+                  display: element.type === 'div' ? 'flex' : 'block',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: element.type === 'div' ? '1px dashed #ccc' : 'none'
+                }}
+                onMouseDown={(e) => handleMouseDown(e, element.id)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedId(element.id)
+                }}
+              >
+                {element.text}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Properties Panel */}
-        <div style={styles.panel}>
-          <h2 style={styles.panelTitle}>Properties</h2>
+        <div className="properties-panel">
+          <h2 className="panel-title">Properties</h2>
           {selectedElement ? (
             <div>
-              <p style={styles.info}>
-                <strong>Type:</strong> {selectedElement.type}
-              </p>
+              <div className="info-pill">
+                <strong>Type:</strong> {selectedElement.type.toUpperCase()}
+              </div>
 
-              {(selectedElement.type === 'button' || selectedElement.type === 'text') && (
-                <div style={styles.propertyGroup}>
-                  <label style={styles.label}>Text:</label>
+              {(selectedElement.type === 'button' || selectedElement.type === 'text' || selectedElement.type === 'div') && (
+                <div className="property-group">
+                  <label className="label">Text Content</label>
                   <input
                     type="text"
-                    style={styles.input}
+                    className="input-text"
                     value={selectedElement.text}
-                    onChange={(e) => handleTextChange(selectedElement.id, e.target.value)}
+                    onChange={(e) => handlePropertyChange(selectedElement.id, 'text', e.target.value)}
                   />
                 </div>
               )}
 
-              <div style={styles.propertyGroup}>
-                <label style={styles.label}>Background Color:</label>
-                <div style={styles.colorInputWrapper}>
+              <div className="property-group-row">
+                <div className="property-group">
+                  <label className="label">Width (px)</label>
                   <input
-                    type="color"
-                    style={styles.colorInput}
-                    value={selectedElement.backgroundColor}
-                    onChange={(e) => handleColorChange(selectedElement.id, e.target.value)}
+                    type="text"
+                    className="input-text"
+                    placeholder="auto or 100"
+                    value={selectedElement.width}
+                    onChange={(e) => handlePropertyChange(selectedElement.id, 'width', e.target.value)}
                   />
-                  <span style={styles.colorValue}>{selectedElement.backgroundColor}</span>
+                </div>
+                <div className="property-group">
+                  <label className="label">Height (px)</label>
+                  <input
+                    type="text"
+                    className="input-text"
+                    placeholder="auto or 100"
+                    value={selectedElement.height}
+                    onChange={(e) => handlePropertyChange(selectedElement.id, 'height', e.target.value)}
+                  />
                 </div>
               </div>
 
-              <p style={styles.info}>
-                <strong>Position:</strong> X: {Math.round(selectedElement.x)}, Y: {Math.round(selectedElement.y)}
-              </p>
+              <div className="property-group-row">
+                 <div className="property-group">
+                  <label className="label">Border Radius</label>
+                  <input
+                    type="number"
+                    className="input-text"
+                    value={selectedElement.borderRadius}
+                    onChange={(e) => handlePropertyChange(selectedElement.id, 'borderRadius', e.target.value)}
+                  />
+                </div>
+                <div className="property-group">
+                  <label className="label">Font Size</label>
+                  <input
+                    type="number"
+                    className="input-text"
+                    value={selectedElement.fontSize}
+                    onChange={(e) => handlePropertyChange(selectedElement.id, 'fontSize', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="property-group">
+                <label className="label">Background Color</label>
+                <div className="color-picker-wrapper">
+                  <input
+                    type="color"
+                    className="input-color"
+                    value={selectedElement.backgroundColor !== 'transparent' ? selectedElement.backgroundColor : '#ffffff'}
+                    onChange={(e) => handlePropertyChange(selectedElement.id, 'backgroundColor', e.target.value)}
+                  />
+                  <span className="color-hex">{selectedElement.backgroundColor}</span>
+                </div>
+              </div>
+
+              <div className="property-group">
+                <label className="label">Text Color</label>
+                <div className="color-picker-wrapper">
+                  <input
+                    type="color"
+                    className="input-color"
+                    value={selectedElement.textColor}
+                    onChange={(e) => handlePropertyChange(selectedElement.id, 'textColor', e.target.value)}
+                  />
+                  <span className="color-hex">{selectedElement.textColor}</span>
+                </div>
+              </div>
 
               <button
-                style={styles.deleteButton}
+                className="delete-btn"
                 onClick={() => handleDeleteElement(selectedElement.id)}
               >
                 Delete Element
               </button>
 
-              <div style={styles.codeSection}>
-                <label style={styles.label}>Generated Code:</label>
-                <div style={styles.codeBox}>
-                  <code style={styles.code}>
-                    {generateElementCode(selectedElement)}
-                  </code>
+              <div className="code-section">
+                <label className="label">React Code</label>
+                <div className="code-block">
+                  {generateElementCode(selectedElement)}
                 </div>
                 <button
-                  style={styles.copyButton}
+                  className="copy-btn"
                   onClick={() => {
                     navigator.clipboard.writeText(generateElementCode(selectedElement))
-                    alert('Code copied to clipboard!')
+                    // Could add a toast notification here
                   }}
                 >
                   Copy Code
@@ -231,216 +276,10 @@ export default function App() {
               </div>
             </div>
           ) : (
-            <p style={styles.noSelection}>Select an element to edit properties</p>
+            <p className="no-selection">Click any element on the canvas to inspect and edit its properties.</p>
           )}
         </div>
       </div>
     </div>
   )
-}
-
-const styles = {
-  appContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-    backgroundColor: '#f5f5f5',
-  },
-  toolbar: {
-    backgroundColor: '#333',
-    color: '#fff',
-    padding: '15px 20px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-  },
-  title: {
-    margin: '0 0 12px 0',
-    fontSize: '24px',
-    fontWeight: 'bold',
-  },
-  buttonGroup: {
-    display: 'flex',
-    gap: '10px',
-  },
-  toolbarButton: {
-    backgroundColor: '#2196F3',
-    color: '#fff',
-    border: 'none',
-    padding: '10px 16px',
-    fontSize: '14px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontWeight: 'bold',
-    transition: 'background-color 0.2s',
-  },
-  mainContent: {
-    display: 'flex',
-    flex: 1,
-    gap: '10px',
-    padding: '15px',
-    overflow: 'hidden',
-  },
-  canvas: {
-    flex: 1,
-    backgroundColor: '#fff',
-    border: '2px solid #999',
-    borderRadius: '4px',
-    position: 'relative',
-    overflow: 'auto',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  },
-  emptyText: {
-    color: '#999',
-    textAlign: 'center',
-    padding: '20px',
-    fontSize: '14px',
-  },
-  element: {
-    padding: '8px',
-    borderRadius: '4px',
-    transition: 'box-shadow 0.2s',
-    userSelect: 'none',
-  },
-  buttonElement: {
-    minWidth: '80px',
-    minHeight: '40px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonContent: {
-    padding: '8px 16px',
-    backgroundColor: '#4CAF50',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: 'bold',
-  },
-  textElement: {
-    minHeight: '24px',
-    padding: '4px 8px',
-  },
-  textContent: {
-    fontSize: '14px',
-    color: '#333',
-  },
-  divElement: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '2px dashed #999',
-  },
-  divContent: {
-    color: '#666',
-    fontSize: '14px',
-    fontWeight: 'bold',
-  },
-  panel: {
-    width: '280px',
-    backgroundColor: '#fff',
-    border: '2px solid #999',
-    borderRadius: '4px',
-    padding: '15px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    overflowY: 'auto',
-  },
-  panelTitle: {
-    margin: '0 0 15px 0',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    color: '#333',
-    borderBottom: '2px solid #2196F3',
-    paddingBottom: '10px',
-  },
-  propertyGroup: {
-    marginBottom: '15px',
-  },
-  label: {
-    display: 'block',
-    marginBottom: '5px',
-    fontSize: '13px',
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  input: {
-    width: '100%',
-    padding: '8px',
-    fontSize: '13px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    boxSizing: 'border-box',
-  },
-  colorInputWrapper: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-  },
-  colorInput: {
-    width: '50px',
-    height: '40px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    cursor: 'pointer',
-  },
-  colorValue: {
-    fontSize: '13px',
-    color: '#666',
-    fontFamily: 'monospace',
-  },
-  info: {
-    fontSize: '13px',
-    color: '#666',
-    marginBottom: '10px',
-  },
-  noSelection: {
-    fontSize: '13px',
-    color: '#999',
-    fontStyle: 'italic',
-  },
-  deleteButton: {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: '#f44336',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    marginTop: '10px',
-  },
-  codeSection: {
-    marginTop: '20px',
-    paddingTop: '15px',
-    borderTop: '2px solid #e0e0e0',
-  },
-  codeBox: {
-    backgroundColor: '#f5f5f5',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
-    padding: '10px',
-    marginBottom: '10px',
-    maxHeight: '150px',
-    overflowY: 'auto',
-    fontFamily: 'monospace',
-    fontSize: '11px',
-    lineHeight: '1.4',
-  },
-  code: {
-    color: '#333',
-    whiteSpace: 'pre-wrap',
-    wordBreak: 'break-word',
-  },
-  copyButton: {
-    width: '100%',
-    padding: '8px',
-    backgroundColor: '#2196F3',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: 'bold',
-  },
 }
