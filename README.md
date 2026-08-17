@@ -17,7 +17,7 @@ A simple React-based drag-and-drop UI builder that allows users to create layout
 - View element position information
 
 🔄 **Real-time State Management**
-- All elements stored in React state
+- All elements stored in React state.
 - Dynamic rendering from state changes
 
 ## Getting Started
