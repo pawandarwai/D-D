@@ -2,7 +2,7 @@
 
 A simple React-based drag-and-drop UI builder that allows users to create layouts by adding and positioning elements on a canvas.
 
-## Features
+## Features & Application
 
 ✨ **Easy Element Creation**
 - Add buttons, text, or container divs to the canvas with one click
