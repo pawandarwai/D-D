@@ -55,7 +55,7 @@ npm run build
    - Change background color using the color picker
 4. **Delete Elements**: Select an element and click "Delete Element" in the Properties panel
 
-## Project Structure
+## Project structure
 
 ```
 src/
