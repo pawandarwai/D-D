@@ -11,7 +11,7 @@ A simple React-based drag-and-drop UI builder that allows users to create layout
 - Drag elements around the canvas to position them exactly where you want
 - Elements stay within canvas bounds
 
-🎨 **Element Customization**
+🎨 **Element Customizations**
 - Edit text for buttons and text elements
 - Change background color for any element
 - View element position information
